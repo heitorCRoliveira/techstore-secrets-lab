@@ -1,0 +1,74 @@
+
+name: TechStore - Security Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: "1 - Deteccao de Segredos"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio completo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Executar Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trivy:
+    name: "2 - Analise de Seguranca com Trivy"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v5
+
+      - name: Executar Trivy
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret,vuln,misconfig
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: json
+          output: trivy-results.json
+
+      - name: Publicar relatorio Trivy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-security-report
+          path: trivy-results.json
+          if-no-files-found: ignore
+
+  npm-audit:
+    name: "3 - Auditoria de Dependencias"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v5
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Gerar lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit
+
+      - name: Auditar dependencias
+        run: npm audit --audit-level=high
