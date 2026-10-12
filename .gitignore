@@ -1,3 +1,10 @@
+
+# Segredos e configuracoes locais
+.env
+.env.*
+!.env.example
+
+# Dependencias e arquivos temporarios
 node_modules/
-logs/
-dist/
+npm-debug.log*
+*.log

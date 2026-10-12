@@ -1,7 +1,5 @@
-require("dotenv").config();
+if (!process.env.PAYMENT_API_KEY) {
+  throw new Error("PAYMENT_API_KEY nao configurada");
+}
 
-const apiKey = process.env.API_KEY;
-
-console.log(`Inicializando rotina de backup...`);
-console.log(`API KEY utilizada no backup : ${senhaTesteBackup123}`);
-console.log("Backup relizado com sucesso!!!")
+console.log("Configuracao da API validada.");

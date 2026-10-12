@@ -1,23 +1,11 @@
-volumes:
-  -.:/app
-ports:
-  - "3000:3000"
-environment:
-  - NODE_ENV: development
-  - DB_HOST: database
-  - DB_PORT: 3306
-  - DB_USER: techstore_app
-  - DB_PASSWORD: TechstoreDB@123
-  - DB_NAME: techstore
 
-
-database:
-  image: mysql:8.0
-  environment:
-    - MYSQL_ROOT_PASSWORD: TechstoreDB@123
-    - MYSQL_DATABASE: techstore
-    - MYSQL_USER: techstore_app
-    - MYSQL_PASSWORD: TechstoreDB@123
-    - MYSQL_ROOT_PASSWORD: RootTechstoreDB@123
-  ports:
-    - "3306:3306"
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:?Defina DB_NAME}
+      MYSQL_USER: ${DB_USER:?Defina DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Defina DB_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:3306:3306"
